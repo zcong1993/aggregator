@@ -12,6 +12,23 @@ $ yarn add @zcong/aggregator
 $ npm i @zcong/aggregator --save
 ```
 
+## Usage
+
+```ts
+import { aggregator } from '@zcong/aggregator'
+
+// call multi API concurrency
+aggregator([
+  {
+    fn: () => callImportantAPI(), // will throw when callImportantAPI fail
+  },
+  {
+    fn: () => callOptionalAPI(), // will return fallbackValue when callOptionalAPI fail
+    fallbackValue: { defaultData: 'defaultData' },
+  },
+]).then(([importantResp, optionalResp]) => {})
+```
+
 ## License
 
 MIT &copy; zcong1993
