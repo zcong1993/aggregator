@@ -2,7 +2,7 @@ import * as allsettled from 'promise.allsettled'
 
 export interface Handler<T> {
   fn: () => Promise<T> | T
-  fallbackValue?: T
+  fallbackFn?: () => Promise<T> | T
 }
 
 export type HandlerTuple<T extends [unknown, ...unknown[]]> = {
@@ -12,23 +12,26 @@ export type ResultTuple<T extends [unknown, ...unknown[]]> = {
   [P in keyof T]: T[P]
 }
 
-export const aggregator = async <T extends [unknown, ...unknown[]]>(
+export function withDefaultValue<T>(value: T) {
+  return (): T => value
+}
+
+export async function aggregator<T extends [unknown, ...unknown[]]>(
   iterable: HandlerTuple<T>
-): Promise<ResultTuple<T>> => {
-  return allsettled(iterable.map((it) => it.fn())).then((resArr) => {
-    const res = []
-    for (let i = 0; i < resArr.length; i++) {
-      const r = resArr[i]
-      if (r.status === 'fulfilled') {
-        res.push(r.value)
+): Promise<ResultTuple<T>> {
+  const resArr = await allsettled(iterable.map((it) => it.fn()))
+  const res = []
+  for (let i = 0; i < resArr.length; i++) {
+    const r = resArr[i]
+    if (r.status === 'fulfilled') {
+      res.push(r.value)
+    } else {
+      if (typeof iterable[i].fallbackFn === 'function') {
+        res.push(await iterable[i].fallbackFn())
       } else {
-        if (iterable[i].fallbackValue !== undefined) {
-          res.push(iterable[i].fallbackValue)
-        } else {
-          throw new Error(r.reason as any)
-        }
+        throw new Error(r.reason as any)
       }
     }
-    return res
-  }) as Promise<ResultTuple<T>>
+  }
+  return (res as any) as Promise<ResultTuple<T>>
 }

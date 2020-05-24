@@ -15,7 +15,7 @@ $ npm i @zcong/aggregator --save
 ## Usage
 
 ```ts
-import { aggregator } from '@zcong/aggregator'
+import { aggregator, withDefaultValue } from '@zcong/aggregator'
 
 // call multi API concurrency
 aggregator([
@@ -23,8 +23,12 @@ aggregator([
     fn: () => callImportantAPI(), // will throw when callImportantAPI fail
   },
   {
-    fn: () => callOptionalAPI(), // will return fallbackValue when callOptionalAPI fail
-    fallbackValue: { defaultData: 'defaultData' },
+    fn: () => callOptionalAPI(), // will return fallbackFn when callOptionalAPI fail
+    fallbackFn: withDefaultValue({ defaultData: 'defaultData' }),
+  },
+  {
+    fn: () => callOptionalAPI2(),
+    fallbackFn: () => callFallbackAPI(), // not use static value
   },
 ]).then(([importantResp, optionalResp]) => {})
 ```
