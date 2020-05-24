@@ -1,4 +1,7 @@
 import * as allsettled from 'promise.allsettled'
+import * as debug from 'debug'
+
+const db = debug('aggregator')
 
 export interface Handler<T> {
   fn: () => Promise<T> | T
@@ -27,8 +30,16 @@ export async function aggregator<T extends [unknown, ...unknown[]]>(
       res.push(r.value)
     } else {
       if (typeof iterable[i].fallbackFn === 'function') {
-        res.push(await iterable[i].fallbackFn())
+        const fallbackRes = await iterable[i].fallbackFn()
+        db(
+          `index ${i} call origin fn error: `,
+          r.reason,
+          'called fallbackFn: ',
+          fallbackRes
+        )
+        res.push(fallbackRes)
       } else {
+        db(`index ${i} has no fallbackFn, will throw: `, r.reason)
         throw new Error(r.reason as any)
       }
     }
