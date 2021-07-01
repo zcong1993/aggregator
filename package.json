@@ -30,7 +30,7 @@
     "eslint": "^7.1.0",
     "eslint-config-prettier": "^7.0.0",
     "eslint-plugin-import": "^2.22.1",
-    "husky": "^6.0.0",
+    "husky": "^7.0.0",
     "jest": "^26.0.1",
     "lint-staged": "^11.0.0",
     "prettier": "^2.2.1",
