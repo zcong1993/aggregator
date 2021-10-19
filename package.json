@@ -1,6 +1,6 @@
 {
   "name": "@zcong/aggregator",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "promise aggregator",
   "main": "./dist/index.js",
   "files": [
